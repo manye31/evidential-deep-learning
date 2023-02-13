@@ -20,6 +20,16 @@ def generate_cubic(x, noise=False):
     r = np.random.normal(0, sigma).astype(np.float32)
     return y+r, sigma
 
+def generate_sin(x, noise=False, nf = 1.5):
+    x = x.astype(np.float32)
+    y = (2*x-4) * np.sin(x)
+
+    if noise:
+        sigma = nf * np.ones_like(x)
+    else:
+        sigma = np.zeros_like(x)
+    r = np.random.normal(0, sigma).astype(np.float32)
+    return y+r, sigma
 
 #####################################
 # individual data files             #
@@ -286,8 +296,8 @@ def _load_song():
 
 
 def _load_depth():
-    train = h5py.File("data/depth_train.h5", "r")
-    test = h5py.File("data/depth_test.h5", "r")
+    train = h5py.File("neurips2020/data/depth_train.h5", "r")
+    test = h5py.File("neurips2020/data/depth_test.h5", "r")
     return (train["image"], train["depth"]), (test["image"], test["depth"])
 
 def load_depth():

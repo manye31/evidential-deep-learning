@@ -8,8 +8,10 @@ import os
 
 import evidential_deep_learning as edl
 import data_loader
-import trainers
-import models
+import pdb
+
+# temporary way to get modules to work
+from neurips2020 import models, trainers
 
 seed = 1234
 random.seed(seed)
@@ -22,13 +24,15 @@ iterations = 5000
 show = True
 
 noise_changing = False
-train_bounds = [[-4, 4]]
+train_bounds = [[-15, 15]]
 x_train = np.concatenate([np.linspace(xmin, xmax, 1000) for (xmin, xmax) in train_bounds]).reshape(-1,1)
-y_train, sigma_train = data_loader.generate_cubic(x_train, noise=True)
+# y_train, sigma_train = data_loader.generate_cubic(x_train, noise=True)
+y_train, sigma_train = data_loader.generate_sin(x_train, noise=True)
 
-test_bounds = [[-7,+7]]
+test_bounds = [[-20,+20]]
 x_test = np.concatenate([np.linspace(xmin, xmax, 1000) for (xmin, xmax) in test_bounds]).reshape(-1,1)
-y_test, sigma_test = data_loader.generate_cubic(x_test, noise=False)
+# y_test, sigma_test = data_loader.generate_cubic(x_test, noise=False)
+y_test, sigma_test = data_loader.generate_sin(x_test, noise=False)
 
 ### Plotting helper functions ###
 def plot_scatter_with_var(mu, var, path, n_stds=3):
@@ -39,7 +43,7 @@ def plot_scatter_with_var(mu, var, path, n_stds=3):
     plt.plot(x_test, y_test, 'r--', zorder=2)
     plt.plot(x_test, mu, color='#007cab', zorder=3)
     plt.gca().set_xlim(*test_bounds)
-    plt.gca().set_ylim(-150,150)
+    plt.gca().set_ylim(min(y_test)*1.1,max(y_test)*1.1)
     plt.title(path)
     plt.savefig(path, transparent=True)
     if show:
@@ -52,8 +56,10 @@ def plot_ng(model, save="ng", ext=".pdf"):
     mu, v, alpha, beta = tf.split(outputs, 4, axis=1)
 
     epistemic = np.sqrt(beta/(v*(alpha-1)))
-    epistemic = np.minimum(epistemic, 1e3) # clip the unc for vis
-    plot_scatter_with_var(mu, epistemic, path=save+ext, n_stds=3)
+    epistemic = np.minimum(epistemic, 1e3) # clip the unc for vis # uhhhhhhhh what?
+
+    path = uniq_save(save+ext)
+    plot_scatter_with_var(mu, epistemic, path, n_stds=3)
 
 def plot_ensemble(models, save="ensemble", ext=".pdf"):
     x_test_input = tf.convert_to_tensor(x_test, tf.float32)
@@ -89,6 +95,18 @@ def plot_gaussian(model, save="gaussian", ext=".pdf"):
     plot_scatter_with_var(mu, sigma, path=save+ext, n_stds=3)
 
 
+def uniq_save(file):
+    incr = 0
+    basefile = file
+    while os.path.exists(file):
+        ext = os.path.splitext(file)[-1]
+        raw = os.path.splitext(file)[0]
+        if file == basefile:
+            file = raw + f"_{incr}" + ext
+        else:
+            file = raw[: raw.rfind("_")] + f"_{incr}" + ext
+        incr += 1
+    return file
 
 #### Different toy configurations to train and plot
 def evidence_reg_2_layers_50_neurons():
