@@ -170,16 +170,16 @@ def gen_cutoff_plot(df_image, eps=0.0, ood=False, plot=True):
         print("Plotting cutoffs")
         sns.lineplot(x="Percentile", y="Error", hue="Method", data=df_cutoff)
         plt.savefig(os.path.join(output_dir, f"cutoff_eps-{eps}_ood-{ood}.pdf"))
-        plt.show()
+        # plt.show()
 
         sns.lineplot(x="Percentile", y="Error", hue="Model Path", style="Method", data=df_cutoff)
         plt.savefig(os.path.join(output_dir, f"cutoff_eps-{eps}_ood-{ood}_trial.pdf"))
-        plt.show()
+        # plt.show()
 
         g = sns.FacetGrid(df_cutoff, col="Method", legend_out=False)
         g = g.map_dataframe(sns.lineplot, x="Percentile", y="Error", hue="Model Path")#.add_legend()
         plt.savefig(os.path.join(output_dir, f"cutoff_eps-{eps}_ood-{ood}_trial_panel.pdf"))
-        plt.show()
+        # plt.show()
 
 
     return df_cutoff
@@ -226,12 +226,12 @@ def gen_calibration_plot(df_image, eps=0.0, ood=False, plot=True):
         print("Plotting confidence plots")
         sns.lineplot(x="Expected Conf.", y="Observed Conf.", hue="Method", data=df_calibration)
         plt.savefig(os.path.join(output_dir, f"calib_eps-{eps}_ood-{ood}.pdf"))
-        plt.show()
+        # plt.show()
 
         g = sns.FacetGrid(df_calibration, col="Method", legend_out=False)
         g = g.map_dataframe(sns.lineplot, x="Expected Conf.", y="Observed Conf.", hue="Model Path")#.add_legend()
         plt.savefig(os.path.join(output_dir, f"calib_eps-{eps}_ood-{ood}_panel.pdf"))
-        plt.show()
+        # plt.show()
 
     return df_calibration, table
 
@@ -250,16 +250,16 @@ def gen_adv_plots(df_image, ood=False):
     df_by_method = df_pixel.groupby(["Method", "Model Path", "Epsilon"]).mean().reset_index()
     sns.lineplot(x="Epsilon", y="Error", hue="Method", data=df_by_method)
     plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_method_error.pdf"))
-    plt.show()
+    # plt.show()
 
     ### Plot epsilon vs uncertainty per method
     sns.lineplot(x="Epsilon", y="Sigma", hue="Method", data=df_by_method)
     plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_method_sigma.pdf"))
-    plt.show()
+    # plt.show()
     # df_by_method["Entropy"] = 0.5*np.log(2*np.pi*np.exp(1.)*(df_by_method["Sigma"]**2))
     # sns.lineplot(x="Epsilon", y="Entropy", hue="Method", data=df_by_method)
     # plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_method_entropy.pdf"))
-    # plt.show()
+    plt.show()
 
 
     ### Plot entropy cdf for different epsilons
@@ -287,7 +287,7 @@ def gen_adv_plots(df_image, ood=False):
     g = sns.FacetGrid(df_cumdf, col="Method")
     g = g.map_dataframe(sns.lineplot, x="Entropy", y="CDF", hue="Epsilon", ci=None).add_legend()
     plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_cdf_method.pdf"))
-    plt.show()
+    # plt.show()
 
     # NOT USED FOR THE FINAL PAPER, BUT FEEL FREE TO UNCOMMENT AND RUN
     # ### Plot calibration for different epsilons/methods
@@ -296,26 +296,26 @@ def gen_adv_plots(df_image, ood=False):
     # tables = []
     # for eps in tqdm(df["Epsilon"].unique()):
     #     df_calibration, table = gen_calibration_plot(df_image.copy(), eps, plot=False)
-    #     calibrations.append(df_calibration)
+    #     calibrations````````````````````````````````````````````````````````````````````````.append````````````````````````````````````````````````````````````````````````(df_calibration)
     #     tables.append(table)
-    # df_calibration = pd.concat(calibrations, ignore_index=True)
-    # df_table = pd.concat(tables, ignore_index=True)
+    # df_calibration = pd.append(calibrations, ignore_index=True)
+    # df_table = pd.append(tables, ignore_index=True)
     # df_table.to_csv(os.path.join(output_dir, f"adv_ood-{ood}_calib_error.csv"))
     #
     #
     # sns.catplot(x="Method", y="Calibration Error", hue="Epsilon", data=df_calibration, kind="bar")
     # plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_calib_error_method.pdf"))
-    # plt.show()
+    plt.show()
     #
     # sns.catplot(x="Epsilon", y="Calibration Error", hue="Method", data=df_calibration, kind="bar")
     # plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_calib_error_epsilon.pdf"))
-    # plt.show()
+    plt.show()
     #
     # g = sns.FacetGrid(df_calibration, col="Method")
     # g = g.map_dataframe(sns.lineplot, x="Expected Conf.", y="Observed Conf.", hue="Epsilon")
     # g = g.add_legend()
     # plt.savefig(os.path.join(output_dir, f"adv_ood-{ood}_calib_method.pdf"))
-    # plt.show()
+    plt.show()
 
 
 def gen_ood_comparison(df_image, unc_key="Entropy"):
@@ -334,18 +334,18 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
 
     sns.catplot(x="Method", y=unc_key, hue="OOD", data=df_mean_unc_img, kind="violin")
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_violin.pdf"))
-    plt.show()
+    # plt.show()
 
     sns.catplot(x="Method", y=unc_key, hue="OOD", data=df_mean_unc_img, kind="box", whis=0.5, showfliers=False)
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_box.pdf"))
-    plt.show()
+    # plt.show()
 
 
     ### Plot PDF for each Method on both OOD and IN
     g = sns.FacetGrid(df_mean_unc_img, col="Method", hue="OOD")
     g.map(sns.distplot, "Entropy").add_legend()
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_pdf_per_method.pdf"))
-    plt.show()
+    # plt.show()
 
 
     ### Grab some sample images of most and least uncertainty
@@ -413,7 +413,7 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
 
     sns.lineplot(data=df_cumdf, x=unc_key, y="CDF", hue="Method", style="OOD")
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_cdfs.pdf"))
-    plt.show()
+    # plt.show()
 
 
 
