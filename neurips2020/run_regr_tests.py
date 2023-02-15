@@ -6,12 +6,12 @@ import tensorflow_probability as tfp
 from pathlib import Path
 import os
 
+# make sure to install pypi evidential-deep-learning package
 import evidential_deep_learning as edl
 import data_loader
+import models
+import trainers
 import pdb
-
-# temporary way to get modules to work
-from neurips2020 import models, trainers
 
 seed = 1234
 random.seed(seed)
@@ -24,14 +24,12 @@ iterations = 5000
 show = True
 
 noise_changing = False
-train_bounds = [[-15, 15]]
+train_bounds = [[-10, +10]]
 x_train = np.concatenate([np.linspace(xmin, xmax, 1000) for (xmin, xmax) in train_bounds]).reshape(-1,1)
-# y_train, sigma_train = data_loader.generate_cubic(x_train, noise=True)
 y_train, sigma_train = data_loader.generate_sin(x_train, noise=True)
 
 test_bounds = [[-20,+20]]
 x_test = np.concatenate([np.linspace(xmin, xmax, 1000) for (xmin, xmax) in test_bounds]).reshape(-1,1)
-# y_test, sigma_test = data_loader.generate_cubic(x_test, noise=False)
 y_test, sigma_test = data_loader.generate_sin(x_test, noise=False)
 
 ### Plotting helper functions ###
@@ -93,7 +91,6 @@ def plot_gaussian(model, save="gaussian", ext=".pdf"):
     preds = model(x_test_input, training=False) #forward pass
     mu, sigma = tf.split(preds, 2, axis=-1)
     plot_scatter_with_var(mu, sigma, path=save+ext, n_stds=3)
-
 
 def uniq_save(file):
     incr = 0

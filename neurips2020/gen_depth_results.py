@@ -13,10 +13,11 @@ import tensorflow as tf
 from tqdm import tqdm
 
 import evidential_deep_learning as edl
-import pdb
+import data
+import models
+import trainers
 
-# temporary way to get modules to work
-from neurips2020 import models, trainers, data
+import pdb
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--load-pkl", action='store_true',
