@@ -140,6 +140,7 @@ cython_debug/
 .DS_Store
 ._DS_Store
 
+*.pkl
 *.h5
 
 logs/

@@ -45,13 +45,17 @@ with h5py.File('neurips2020/data/depth_train.h5', 'r') as hf:
     sample_image = image[0]
     sample_depth = depth[0].squeeze()
 
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     sample_image_pil = Image.fromarray(sample_image)
+    plt.imshow(sample_image_pil)
 
-    ood_image = Image.open("neurips2020/pineapple2.png")
+    ood_image = Image.open("neurips2020/spiderman.png")
+    plt.imshow(ood_image)
     
     background_image, canvas_image = random_paste(sample_image_pil, ood_image, min_scale=0.25, max_scale=0.65)
-
+    plt.imshow(background_image)
+    plt.imshow(canvas_image)
+    plt.show()
     
 
     # plt.subplots(1, 2)
