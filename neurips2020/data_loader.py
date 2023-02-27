@@ -4,8 +4,11 @@ IO module for train/test regression datasets
 import numpy as np
 import pandas as pd
 import os
+from os import path
 import h5py
 import tensorflow as tf
+from PIL import Image
+import matplotlib.pyplot as plt
 
 
 
@@ -303,6 +306,54 @@ def _load_depth():
 def load_depth():
     return _load_depth()
 
+def _load_small_depth():
+    test_images = []
+    test_depths = []
+    root = "data/depth/image/background"
+    for img in os.listdir(root):
+        if img.endswith(".png"):
+            im = Image.open(path.join(root, img))
+            test_images.append(np.asarray(im))
+    root = "data/depth/depth"
+    for dep in os.listdir(root):
+        if dep.endswith(".png"):
+            dp = Image.open(path.join(root, dep))
+            test_depths.append(np.asarray(dp))
+    test_images = np.array(test_images)
+    test_depths = np.array(test_depths)
+
+    return (None, None), (test_images, test_depths)
+
+def load_small_depth():
+    return _load_small_depth()
+
+def _load_adv_ood():
+    # import pdb; pdb.set_trace()
+    train = h5py.File("data/depth_train.h5", "r")
+    test_images = []
+    test_depths = []
+    root = "data/depth/image/ood"
+    for img in os.listdir(root):
+        if img.endswith(".png"):
+            im = Image.open(path.join(root, img))
+            intermediate = np.asarray(im)
+            intermediate = np.delete(intermediate, obj=3, axis=2)
+            test_images.append(intermediate)
+    root = "data/depth/depth"
+    for dep in os.listdir(root):
+        if dep.endswith(".png"):
+            dp = Image.open(path.join(root, dep))
+            test_depths.append(np.asarray(dp))
+
+    test_images = np.array(test_images)
+    test_depths = np.array(test_depths)
+    # breakpoint()
+
+    return (train["image"], train["depth"]), (test_images, test_depths)
+
+def load_adv_ood():
+    return _load_adv_ood()
+
 def load_apollo():
     test = h5py.File("data/apolloscape_test.h5", "r")
     return (None, None), (test["image"], test["depth"])
@@ -427,3 +478,6 @@ def load_flight_delay():
 # (X_train, y_train), (X_test, y_test) = load_dataset('depth')
 
 # import pdb; pdb.set_trace()
+
+if __name__ == '__main__':
+    x, y = load_adv_ood()

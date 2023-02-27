@@ -56,6 +56,7 @@ output_dir = "figs/depth"
 def compute_predictions(batch_size=50, n_adv=9):
     (x_in, y_in), (x_ood, y_ood) = load_data()
     datasets = [(x_in, y_in, False), (x_ood, y_ood, True)]
+    import pdb; pdb.set_trace()
 
     df_pred_image = pd.DataFrame(
         columns=["Method", "Model Path", "Input",
@@ -422,8 +423,10 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
 
 def load_data():
     import data_loader
-    _, (x_test, y_test) = data_loader.load_depth()
-    _, (x_ood_test, y_ood_test) = data_loader.load_apollo()
+    # _, (x_test, y_test) = data_loader.load_depth()
+    # _, (x_ood_test, y_ood_test) = data_loader.load_apollo()
+    _, (x_test, y_test) = data_loader.load_small_depth()
+    _, (x_ood_test, y_ood_test) = data_loader.load_adv_ood()
     print("Loaded data:", x_test.shape, x_ood_test.shape)
     return (x_test, y_test), (x_ood_test, y_ood_test)
 
