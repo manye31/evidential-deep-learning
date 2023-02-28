@@ -56,7 +56,7 @@ output_dir = "figs/depth"
 def compute_predictions(batch_size=50, n_adv=9):
     (x_in, y_in), (x_ood, y_ood) = load_data()
     datasets = [(x_in, y_in, False), (x_ood, y_ood, True)]
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     df_pred_image = pd.DataFrame(
         columns=["Method", "Model Path", "Input",
@@ -73,6 +73,7 @@ def compute_predictions(batch_size=50, n_adv=9):
             print(f"Running {model_path}")
 
             for x, y, ood in datasets:
+                # import pdb;pdb.set_trace()
                 # max(10,x.shape[0]//500-1)
                 for start_i in tqdm(np.arange(0, 3*batch_size, batch_size)):
                     inds = np.arange(start_i, min(start_i+batch_size, x.shape[0]-1))
@@ -88,6 +89,7 @@ def compute_predictions(batch_size=50, n_adv=9):
                     else:
                         ### Compute adversarial mask
                         # mask_batch = create_adversarial_pattern(model, tf.convert_to_tensor(x_batch), tf.convert_to_tensor(y_batch))
+                        print("Hi")
                         mask_batch = create_adversarial_pattern(model, x_batch, y_batch)
                         mask_batch = mask_batch.numpy().astype(np.int8)
 
@@ -479,6 +481,7 @@ def create_adversarial_pattern(model, x, y):
             (pred) = model(x_, training=True)
             if pred.shape[-1] == 4:
                 pred = tf.split(pred, 4, axis=-1)[0]
+        # import pdb;pdb.set_trace()
         loss = edl.losses.MSE(y, pred)
     # Get the gradients of the loss w.r.t to the input image.
     gradient = tape.gradient(loss, x_)
@@ -498,8 +501,8 @@ else:
 
 """ ================================================== """
 Path(output_dir).mkdir(parents=True, exist_ok=True)
-gen_cutoff_plot(df_image)
-gen_calibration_plot(df_image)
-gen_adv_plots(df_image)
+# gen_cutoff_plot(df_image)
+# gen_calibration_plot(df_image)
+# gen_adv_plots(df_image)
 gen_ood_comparison(df_image)
 """ ================================================== """

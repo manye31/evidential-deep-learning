@@ -318,7 +318,8 @@ def _load_small_depth():
     for dep in os.listdir(root):
         if dep.endswith(".png"):
             dp = Image.open(path.join(root, dep))
-            test_depths.append(np.asarray(dp))
+            dp_array = np.expand_dims(np.asarray(dp), 2)
+            test_depths.append(dp_array)
     test_images = np.array(test_images)
     test_depths = np.array(test_depths)
 
@@ -343,12 +344,12 @@ def _load_adv_ood():
     for dep in os.listdir(root):
         if dep.endswith(".png"):
             dp = Image.open(path.join(root, dep))
-            test_depths.append(np.asarray(dp))
+            dp_array = np.expand_dims(np.asarray(dp), 2)
+            test_depths.append(dp_array)
 
     test_images = np.array(test_images)
     test_depths = np.array(test_depths)
     # breakpoint()
-
     return (train["image"], train["depth"]), (test_images, test_depths)
 
 def load_adv_ood():
@@ -481,3 +482,4 @@ def load_flight_delay():
 
 if __name__ == '__main__':
     x, y = load_adv_ood()
+    # x, y = load_depth()
