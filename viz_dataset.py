@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import os
 from PIL import Image
 
 SHOW = False
@@ -35,6 +36,10 @@ def random_paste(background_image, ood_image, min_scale=0.25, max_scale=0.65):
     background_image.paste(ood_image, (start_w, start_h), ood_image)
     return background_image, canvas_image
 
+items = np.empty([0])
+for file in os.listdir('neurips2020/data/depth/items'):
+    items = np.append(items, os.path.splitext(file)[0])
+
 with h5py.File('neurips2020/data/depth_train.h5', 'r') as hf:
     print(hf.keys())
     depth = hf["depth"]
@@ -47,25 +52,26 @@ with h5py.File('neurips2020/data/depth_train.h5', 'r') as hf:
     images = np.array(image)
 
     for i in range(0,20):
-        element = np.random.randint(images.shape[0])
-        print(element)
-        sample_image = images[element].squeeze()
-        sample_depth = depth[element].squeeze()
+        ridx = np.random.randint(images.shape[0])
+        print(ridx)
+        sample_image = images[ridx].squeeze()
+        sample_depth = depth[ridx].squeeze()
 
         sample_depth = Image.fromarray(sample_depth)
-        background_image = Image.fromarray(sample_image) # Image.open("neurips2020/trees.jpg") # 
-        ood_item= Image.open("neurips2020/data/depth/image/items/betty.png")
+        background_image = Image.fromarray(sample_image)
+        for item in items:
+            ood_item= Image.open(f"neurips2020/data/depth/items/{item}.png")
 
-        ood_image, canvas_image = random_paste(background_image, ood_item, min_scale=.75, max_scale=.95)
-        if SHOW:
-            plt.subplot(1,3,1)
-            plt.imshow(ood_image)
-            plt.subplot(1,3,2)
-            plt.imshow(background_image)
-            plt.subplot(1,3,3)
-            plt.imshow(sample_depth)
-            plt.show()
+            ood_image, canvas_image = random_paste(background_image, ood_item, min_scale=.75, max_scale=.95)
+            if SHOW:
+                plt.subplot(1,3,1)
+                plt.imshow(ood_image)
+                plt.subplot(1,3,2)
+                plt.imshow(background_image)
+                plt.subplot(1,3,3)
+                plt.imshow(sample_depth)
+                plt.show()
 
-        ood_image.save(f'neurips2020/data/depth/image/ood/ood_betty{i}.png')
-        background_image.save(f'neurips2020/data/depth/image/background/background_{i}.png')
-        sample_depth.save(f'neurips2020/data/depth/depth/depth_{i}.png')
+            ood_image.save(f'neurips2020/data/depth/ood/{item}/ood_{item}{i}_{ridx}.png')
+        background_image.save(f'neurips2020/data/depth/background/background_{i}_{ridx}.png')
+        sample_depth.save(f'neurips2020/data/depth/depth/depth_{i}_{ridx}.png')

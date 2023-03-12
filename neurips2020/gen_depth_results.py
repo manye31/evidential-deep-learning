@@ -26,7 +26,6 @@ parser.add_argument("--load-pkl", action='store_true',
                         trained models")
 args = parser.parse_args()
 
-
 class Model(Enum):
     GroundTruth = "GroundTruth"
     Dropout = "Dropout"
@@ -51,7 +50,12 @@ trained_models = {
         "evidence/trial3.h5",
     ],
 }
-output_dir = "figs/depth"
+run_num = 0
+output_dir = f"figs/depth/run{run_num}"
+
+while os.path.exists(output_dir):
+    run_num += 1
+    output_dir = f"figs/depth/run{run_num}"
 
 def compute_predictions(batch_size=50, n_adv=9):
     (x_in, y_in), (x_ood, y_ood) = load_data()
@@ -294,7 +298,7 @@ def gen_adv_plots(df_image, ood=False):
 
     # NOT USED FOR THE FINAL PAPER, BUT FEEL FREE TO UNCOMMENT AND RUN
     # ### Plot calibration for different epsilons/methods
-    # print("Computing calibration plots per epsilon")
+    # print("Computing calibration plots per epsilon")output_dir
     # calibrations = []
     # tables = []
     # for eps in tqdm(df["Epsilon"].unique()):
@@ -381,14 +385,29 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
         all_entropy_imgs = np.array([ [d[ood][2] for ood in d.keys()] for d in (imgs_max, imgs_min)])
         entropy_bounds = (all_entropy_imgs.min(), all_entropy_imgs.max())
 
-        Path(os.path.join(output_dir, "images")).mkdir(parents=True, exist_ok=True)
+        
+        data_dir = os.path.join(output_dir, f"images/{method}")
+        Path(os.path.join(data_dir,"ood")).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(data_dir,"id")).mkdir(parents=True, exist_ok=True)
+        sample_num = 0
         for d in (imgs_max, imgs_min):
             for ood, (x, y, entropy) in d.items():
-                id = os.path.join(output_dir, f"images/method_{method}_ood_{ood}_entropy_{entropy.mean()}")
-                cv2.imwrite(f"{id}_0.png", 255*x)
-                cv2.imwrite(f"{id}_1.png", apply_cmap(y, cmap=cv2.COLORMAP_JET))
-                entropy = (entropy - entropy_bounds[0]) / (entropy_bounds[1]-entropy_bounds[0])
-                cv2.imwrite(f"{id}_2.png", apply_cmap(entropy))
+                if ood:
+                    id = os.path.join(data_dir, f"ood/sample{sample_num}")
+                else:
+                    id = os.path.join(data_dir, f"id/sample{sample_num}")
+                
+                cv2.imwrite(f"{id}_rgb_entropy_{entropy.mean():.3f}.png", 255*x)
+                cv2.imwrite(f"{id}_depth_entropy_{entropy.mean():.3f}.png", apply_cmap(y, cmap=cv2.COLORMAP_JET))
+                img_entropy = (entropy - entropy_bounds[0]) / (entropy_bounds[1]-entropy_bounds[0])
+                cv2.imwrite(f"{id}_unc_entropy_{entropy.mean():.3f}.png", apply_cmap(img_entropy))
+                
+                # id = os.path.join(output_dir, f"images/method_{method}_ood_{ood}_entropy_{entropy.mean()}")
+                # cv2.imwrite(f"{id}_0.png", 255*x)
+                # cv2.imwrite(f"{id}_1.png", apply_cmap(y, cmap=cv2.COLORMAP_JET))
+                # entropy = (entropy - entropy_bounds[0]) / (entropy_bounds[1]-entropy_bounds[0])
+                # cv2.imwrite(f"{id}_2.png", apply_cmap(entropy))
+            sample_num += 1
 
 
 
@@ -418,17 +437,12 @@ def gen_ood_comparison(df_image, unc_key="Entropy"):
     plt.savefig(os.path.join(output_dir, f"ood_{unc_key}_cdfs.pdf"))
     # plt.show()
 
-
-
-
-
-
 def load_data():
     import data_loader
     # _, (x_test, y_test) = data_loader.load_depth()
     # _, (x_ood_test, y_ood_test) = data_loader.load_apollo()
-    _, (x_test, y_test) = data_loader.load_small_depth()
-    _, (x_ood_test, y_ood_test) = data_loader.load_adv_ood()
+    _, (x_test, y_test) = data_loader.load_test()
+    _, (x_ood_test, y_ood_test) = data_loader.load_ood()
     print("Loaded data:", x_test.shape, x_ood_test.shape)
     return (x_test, y_test), (x_ood_test, y_ood_test)
 
